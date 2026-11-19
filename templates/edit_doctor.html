@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+{% block title %}Edit doctor{% endblock %}
+{% block content %}
+<div class="page-heading"><div><h1>Edit doctor</h1></div></div>
+<div class="panel-card"><form method="post">
+<input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+<div class="row g-3">
+<div class="col-md-6"><label class="form-label">Name</label><input class="form-control" name="full_name" value="{{ doctor.full_name }}" required></div>
+<div class="col-md-6"><label class="form-label">Specialty</label><input class="form-control" name="specialty" value="{{ doctor.specialty }}" required></div>
+<div class="col-md-6"><label class="form-label">Phone</label><input class="form-control" name="phone" value="{{ doctor.phone }}" required></div>
+<div class="col-md-6"><label class="form-label">Email</label><input class="form-control" type="email" name="email" value="{{ doctor.email or '' }}"></div>
+<div class="col-md-6"><label class="form-label">Room</label><input class="form-control" name="room" value="{{ doctor.room or '' }}"></div>
+</div><div class="mt-3 d-flex gap-2"><button class="btn btn-primary-custom">Save changes</button><a class="btn btn-light" href="{{ url_for('doctors') }}">Cancel</a></div>
+</form></div>
+{% endblock %}

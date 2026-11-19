@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+{% block title %}Edit invoice{% endblock %}
+{% block content %}
+<div class="page-heading"><div><h1>Edit invoice</h1></div></div>
+<div class="panel-card"><form method="post">
+<input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+<div class="row g-3">
+<div class="col-md-6"><label class="form-label">Patient</label><select class="form-select" name="patient_id">{% for p in patients %}<option value="{{ p.id }}" {% if p.id == item.patient_id %}selected{% endif %}>{{ p.full_name }}</option>{% endfor %}</select></div>
+<div class="col-md-6"><label class="form-label">Status</label><select class="form-select" name="status"><option {% if item.status == 'Unpaid' %}selected{% endif %}>Unpaid</option><option {% if item.status == 'Paid' %}selected{% endif %}>Paid</option></select></div>
+<div class="col-md-8"><label class="form-label">Description</label><input class="form-control" name="description" value="{{ item.description }}" required></div>
+<div class="col-md-4"><label class="form-label">Amount (₹)</label><input class="form-control" type="number" min="0.01" step="0.01" name="amount" value="{{ item.amount }}" required></div>
+</div><div class="mt-3 d-flex gap-2"><button class="btn btn-primary-custom">Save changes</button><a class="btn btn-light" href="{{ url_for('billing') }}">Cancel</a></div>
+</form></div>
+{% endblock %}

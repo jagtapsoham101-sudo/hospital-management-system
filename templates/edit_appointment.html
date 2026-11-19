@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+{% block title %}Edit appointment{% endblock %}
+{% block content %}
+<div class="page-heading"><div><h1>Edit appointment</h1></div></div>
+<div class="panel-card"><form method="post">
+<input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+<div class="row g-3">
+<div class="col-md-6"><label class="form-label">Patient</label><select class="form-select" name="patient_id">{% for p in patients %}<option value="{{ p.id }}" {% if p.id == item.patient_id %}selected{% endif %}>{{ p.full_name }}</option>{% endfor %}</select></div>
+<div class="col-md-6"><label class="form-label">Doctor</label><select class="form-select" name="doctor_id">{% for d in doctors %}<option value="{{ d.id }}" {% if d.id == item.doctor_id %}selected{% endif %}>{{ d.full_name }}</option>{% endfor %}</select></div>
+<div class="col-md-6"><label class="form-label">Date and time</label><input class="form-control" type="datetime-local" name="starts_at" value="{{ item.starts_at.strftime('%Y-%m-%dT%H:%M') }}" required></div>
+<div class="col-md-6"><label class="form-label">Status</label><select class="form-select" name="status">{% for s in statuses %}<option {% if s == item.status %}selected{% endif %}>{{ s }}</option>{% endfor %}</select></div>
+<div class="col-12"><label class="form-label">Reason</label><input class="form-control" name="reason" value="{{ item.reason }}" required></div>
+</div><div class="mt-3 d-flex gap-2"><button class="btn btn-primary-custom">Save changes</button><a class="btn btn-light" href="{{ url_for('appointments') }}">Cancel</a></div>
+</form></div>
+{% endblock %}
