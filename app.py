@@ -7,7 +7,6 @@ from flask import Flask, flash, redirect, render_template, request, url_for
 from flask_sqlalchemy import SQLAlchemy
 from flask_wtf.csrf import CSRFProtect
 from sqlalchemy import func
-from sqlalchemy.exc import IntegrityError
 
 
 db = SQLAlchemy()
@@ -68,8 +67,12 @@ def create_app(test_config=None):
     )
     if test_config:
         app.config.update(test_config)
+
     db.init_app(app)
     csrf.init_app(app)
+
+    # Make the current date/time available as `now()` in all Jinja templates.
+    app.jinja_env.globals['now'] = datetime.now
 
     @app.get('/')
     def dashboard():
