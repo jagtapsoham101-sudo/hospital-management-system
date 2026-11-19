@@ -1,16 +1,9 @@
-# CarePoint CRUD demo
+# Fix: route arguments must match their Flask endpoint parameters
 
-Run in PowerShell:
+The appointments page now passes `appointment_id` to the existing `update_appointment` route and uses the dedicated `*_full` endpoints for edit/delete. Billing passes `invoice_id` to `mark_paid` and the matching `*_full` endpoints for invoice editing/deletion. Admissions uses `*_full` routes for bed/ward/admission editing and deletion, while using the base app's `admission_id` for discharge. The bed availability display uses the `beds` list supplied by the existing admissions view.
+
+After pulling, always start the extended app so its extra CRUD routes are loaded:
 
 ```powershell
-cd $HOME\Documents\hospital-management-system
-git pull --ff-only origin main
-.\.venv\Scripts\python.exe -m pip install -r requirements.txt
-.\.venv\Scripts\python.exe -m flask --app complete_app:app init-db
-.\.venv\Scripts\python.exe -m flask --app complete_app:app seed-indian-demo
 .\.venv\Scripts\python.exe -m flask --app complete_app:app run --debug
 ```
-
-Open http://127.0.0.1:5000/login. Use the existing demo administrator credentials established by `init-demo`.
-
-All sections have connected create/list/edit/delete workflows: patients, doctors, appointments, invoices, admissions, wards/beds, staff accounts, clinical records and prescriptions. Changes preserve the existing database schema and seeded data. Staff account changes require admin login. Demo records must remain fictional; this application is not for real patient data or clinical operations.
