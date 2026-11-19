@@ -1,85 +1,81 @@
-# Hospital management system
+# CarePoint Hospital Management System
 
-A responsive hospital operations demo built with Flask, SQLAlchemy, and Bootstrap. It supports **SQLite out of the box**, plus **MySQL and PostgreSQL** through a single `DATABASE_URL` setting.
+A feature-rich **academic/demo** Flask + SQLAlchemy system with relational database support for SQLite, MySQL, and PostgreSQL. It includes staff sign-in with basic roles, patient and provider directories, appointments, admissions/bed assignment, clinician-entered visit notes and prescriptions, and billing.
 
-> Demo project only. The included sample records are fictional. Do not use this starter app for real patient data or production healthcare workflows without a security, privacy, compliance, backup, access-control, and clinical-safety review.
+> **Not a production clinical system.** The app is for coursework and local demonstrations only. Do not enter real patient/health data. It has not been validated for healthcare privacy/security regulations, clinical safety, legal record retention, or production availability. Production use requires professional security/privacy engineering, independent testing, legal/compliance review, backups/disaster recovery, monitoring, and clinical governance. A logged-in screen does not by itself make a system compliant.
 
 ## Features
 
-- Dashboard metrics and recent appointments
-- Patient registration, search, and deletion
-- Doctor directory and registration
-- Appointment scheduling and status updates
-- Invoice creation and payment status tracking
-- CSRF protection on forms
-- SQLAlchemy models and database portability across SQLite, MySQL, and PostgreSQL
-- Fictional sample data for a populated first-run dashboard
+- Staff authentication, hashed passwords, CSRF-protected forms, session timeout, and roles (administrator, clinician, reception, billing)
+- Role-based access to patient, scheduling, clinical, admissions, billing, and staff-account pages
+- Patient and doctor directories, appointment scheduling and status updates
+- Ward/bed setup, bed occupancy, admission, and discharge flow
+- Clinical visit records and optional prescription entries
+- Invoice creation and payment tracking
+- SQLite by default, configurable MySQL and PostgreSQL via `DATABASE_URL`
+- Fictional sample data for demonstrations only
 
-## Run locally (SQLite — quickest)
+## Windows PowerShell setup (SQLite)
 
-Requires Python 3.10+.
+Requires Python 3.10+ and Git. Install Python from <https://www.python.org/downloads/windows/> (select **Add Python to PATH**) and Git from <https://git-scm.com/download/win>. Open a new PowerShell window after installation. If the repository is already cloned, skip the clone command.
 
-```bash
-python -m venv .venv
-# macOS/Linux
-source .venv/bin/activate
-# Windows PowerShell: .venv\Scripts\Activate.ps1
-pip install -r requirements.txt
-flask --app app init-db
-flask --app app seed-demo
-flask --app app run --debug
+```powershell
+cd $HOME\Documents
+git clone https://github.com/jagtapsoham101-sudo/hospital-management-system.git
+cd hospital-management-system
+py -m venv .venv
+.\.venv\Scripts\python.exe -m pip install -r requirements.txt
+.\.venv\Scripts\python.exe -m flask --app app init-db
+.\.venv\Scripts\python.exe -m flask --app app create-admin
 ```
 
-Open <http://127.0.0.1:5000>. To start with an empty database, skip `seed-demo`.
+The `create-admin` command prompts for a username and password. Choose a unique username and password with at least 12 characters. Start the server:
 
-## MySQL
-
-Create a database and a dedicated account, then set the connection URL before running the database commands:
-
-```sql
-CREATE DATABASE hospital_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-CREATE USER 'hospital_app'@'localhost' IDENTIFIED BY 'replace-with-a-strong-password';
-GRANT ALL PRIVILEGES ON hospital_db.* TO 'hospital_app'@'localhost';
+```powershell
+.\.venv\Scripts\python.exe -m flask --app app run --debug
 ```
 
-```bash
-# Linux/macOS shell example (quote the URL if the password has special characters)
-export DATABASE_URL='mysql+pymysql://hospital_app:replace-with-a-strong-password@localhost:3306/hospital_db?charset=utf8mb4'
-flask --app app init-db
-flask --app app seed-demo
-flask --app app run --debug
+Open <http://127.0.0.1:5000> and sign in with that admin account. Keep the terminal open while using the app. Stop with Ctrl+C. For a populated fictional dashboard, run `seed-demo` before starting the server; do not seed a database containing real records.
+
+```powershell
+.\.venv\Scripts\python.exe -m flask --app app seed-demo
 ```
 
-## PostgreSQL
+For macOS/Linux, activate the virtual environment with `source .venv/bin/activate`, then use `python -m pip ...` and `flask --app app ...` commands.
 
-Create a database and account, and configure the URL using the psycopg 3 driver:
+## Database configuration
 
-```sql
-CREATE USER hospital_app WITH PASSWORD 'replace-with-a-strong-password';
-CREATE DATABASE hospital_db OWNER hospital_app;
+SQLite runs by default. To use MySQL or PostgreSQL, create a database/user, then set `DATABASE_URL` **before** `init-db`, `create-admin`, and server startup. Install the project's pinned database drivers via requirements.
+
+**MySQL URL:** `mysql+pymysql://USER:PASSWORD@localhost:3306/hospital_db?charset=utf8mb4`
+
+**PostgreSQL URL:** `postgresql+psycopg://USER:PASSWORD@localhost:5432/hospital_db`
+
+PowerShell example (use a URL-encoded password if it contains reserved URL characters):
+
+```powershell
+$env:DATABASE_URL = 'postgresql+psycopg://hospital_app:CHANGE_ME@localhost:5432/hospital_db'
+$env:SECRET_KEY = 'replace-with-a-long-random-secret'
+.\.venv\Scripts\python.exe -m flask --app app init-db
+.\.venv\Scripts\python.exe -m flask --app app create-admin
+.\.venv\Scripts\python.exe -m flask --app app run
 ```
 
-```bash
-export DATABASE_URL='postgresql+psycopg://hospital_app:replace-with-a-strong-password@localhost:5432/hospital_db'
-flask --app app init-db
-flask --app app seed-demo
-flask --app app run --debug
-```
+Set `SECRET_KEY` to a cryptographically random secret, keep it out of source control, and use HTTPS in any hosted environment. `COOKIE_SECURE=1` enables secure-only session cookies when HTTPS is configured.
 
-For Windows PowerShell, use `$env:DATABASE_URL='...'` in place of `export`. Set `SECRET_KEY` to a long random secret in any deployed environment. Never commit secrets.
+## Roles
 
-## Pages
+- **Administrator:** all pages; creates/disables staff; adds wards/beds; deletes directory entries.
+- **Clinician:** patients, doctors, appointments, admissions, and clinical records.
+- **Reception:** patient/provider directory, appointments, and admissions.
+- **Billing:** patient directory and invoices.
 
-- `/` — Dashboard
-- `/patients` — Patient list, search, and registration
-- `/doctors` — Doctor directory and registration
-- `/appointments` — Scheduling and status management
-- `/billing` — Invoices and payment status
+Create additional accounts from the admin-only **Staff accounts** page. Password minimum is 12 characters. There is intentionally no public registration route.
 
-## Database notes
+## Data migration note
 
-`flask --app app init-db` creates tables for the selected database. This starter uses `create_all()` for convenience; use a migration tool such as Flask-Migrate/Alembic for schema changes in a maintained deployment. To reset the local SQLite demo, stop the server and remove `instance/hospital.db`, then rerun the commands.
+This version uses `db.create_all()` for a quick course-project setup. It does not alter existing tables when models change. For an older installation, **back up first**, then for an empty demo database only remove the local SQLite database and rerun `init-db`, `create-admin`, and optionally `seed-demo`. For any data that must be retained, set up and apply Alembic/Flask-Migrate migrations rather than deleting the database.
 
-## Demo output
+## Demo data
 
-After `seed-demo`, the dashboard shows 4 fictional patients, 3 doctors, upcoming/recent appointments, and an unpaid balance of $420.00. The interface is responsive and uses a dark-blue sidebar with teal highlights.
+`seed-demo` inserts four fictional patients, three fictional doctors, sample appointments/invoices, and eight general-ward beds. It skips if any patient data already exists. The demo credentials are not hard-coded; create your own admin account using the CLI.
